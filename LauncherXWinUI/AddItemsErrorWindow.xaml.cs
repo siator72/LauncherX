@@ -35,7 +35,7 @@ namespace LauncherXWinUI
         /// List of items in this error window, that can be accessed from MainWindow
         /// </summary>
         /// Name the property "Items" for parity with GridView.Items and ListView.Items
-        public ObservableCollection<string> Items = new ObservableCollection<string>();
+        public ObservableCollection<string> Items { get; } = new ObservableCollection<string>();
         
         // Event Handlers
         private void Container_Loaded(object sender, RoutedEventArgs e)
