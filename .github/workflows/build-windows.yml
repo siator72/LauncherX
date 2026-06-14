@@ -26,10 +26,19 @@ name: Build and release LauncherX for Windows x64
 jobs:
   build-and-release:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Show runner environment
+        run: |
+          Write-Host "Runner OS: $($PSVersionTable.OS)"
+          Write-Host "Shell: $($PSVersionTable.PSEdition)"
+          Write-Host "Platform: $env:PROCESSOR_ARCHITECTURE"
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
@@ -56,8 +65,8 @@ jobs:
 
       - name: Package published output
         run: |
-          mkdir -p package
-          powershell -Command "Compress-Archive -Path 'publish/win-x64/*' -DestinationPath 'package/LauncherX-win-x64.zip'"
+          New-Item -ItemType Directory -Path package -Force | Out-Null
+          Compress-Archive -Path "publish/win-x64/*" -DestinationPath "package/LauncherX-win-x64.zip" -Force
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
