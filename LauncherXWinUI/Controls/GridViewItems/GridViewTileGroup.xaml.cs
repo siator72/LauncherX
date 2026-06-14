@@ -30,6 +30,9 @@ namespace LauncherXWinUI.Controls.GridViewItems
 
             // Subscribe to the event to notify us when new items are added/removed to the GridViewTileGroup
             Items.CollectionChanged += Items_CollectionChanged;
+
+            // Allow the group dialog to close when the user clicks outside it
+            GroupDialog.Closing += GroupDialog_Closing;
         }
 
         // Declare properties that this control will have
@@ -272,39 +275,19 @@ namespace LauncherXWinUI.Controls.GridViewItems
                 ItemsGridView.Items.Add(gridViewTile);
             }
 
+            ItemsGridView.Items.VectorChanged -= ItemsGridViewItems_VectorChanged;
             ItemsGridView.Items.VectorChanged += ItemsGridViewItems_VectorChanged;
-
-            // When the dialog is closed, do 3 things:
-            // 1. Unsubscribe from the necessary events
-            // 2. Clear the items in the ItemsGridView, so that when GridViewTiles from this control are added to a new GridViewTileGroup control to add more GridViewTiles (see MainWindow.xaml.cs),
-            // there won't be a case where a GridViewTile has 2 parents
-            // 3. Unselect this control in the ItemsGridView in MainWindow
-            GroupDialog.Closing += (s, e) =>
-            {
-                GroupDialogTitleTextBox.TextChanged -= GroupDialogTitleTextBox_TextChanged;
-                ItemsGridView.Items.VectorChanged -= ItemsGridViewItems_VectorChanged;
-                ItemsGridView.Items.Clear();
-
-                // Unselect this item
-                GridView parentGridView = this.Parent as GridView;
-                if (parentGridView != null)
-                {
-                    parentGridView.SelectedItem = null;
-                }
-            };
 
             // Configure the title of the GroupDialog
             GroupDialogTitleTextBox.Text = DisplayText;
+            GroupDialogTitleTextBox.TextChanged -= GroupDialogTitleTextBox_TextChanged;
             GroupDialogTitleTextBox.TextChanged += GroupDialogTitleTextBox_TextChanged;
 
             // Configure the size of the GroupDialog
             GroupDialogContent.Width = App.MainWindow.Width * 0.8;
             GroupDialogContent.Height = App.MainWindow.Height * 0.6;
-            App.MainWindow.SizeChanged += (s, e) =>
-            {
-                GroupDialogContent.Width = App.MainWindow.Width * 0.8;
-                GroupDialogContent.Height = App.MainWindow.Height * 0.6;
-            };
+            App.MainWindow.SizeChanged -= AppMainWindow_SizeChanged;
+            App.MainWindow.SizeChanged += AppMainWindow_SizeChanged;
 
             var result = await GroupDialog.ShowAsync();
             UnhighlightControl();
@@ -314,6 +297,27 @@ namespace LauncherXWinUI.Controls.GridViewItems
         private void GroupDialogTitleTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             DisplayText = GroupDialogTitleTextBox.Text;
+        }
+
+        private void AppMainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs e)
+        {
+            GroupDialogContent.Width = App.MainWindow.Width * 0.8;
+            GroupDialogContent.Height = App.MainWindow.Height * 0.6;
+        }
+
+        private void GroupDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+        {
+            GroupDialogTitleTextBox.TextChanged -= GroupDialogTitleTextBox_TextChanged;
+            ItemsGridView.Items.VectorChanged -= ItemsGridViewItems_VectorChanged;
+            ItemsGridView.Items.Clear();
+            App.MainWindow.SizeChanged -= AppMainWindow_SizeChanged;
+
+            // Unselect this item
+            GridView parentGridView = this.Parent as GridView;
+            if (parentGridView != null)
+            {
+                parentGridView.SelectedItem = null;
+            }
         }
 
         // Only fires when the GroupDialog is open

@@ -191,6 +191,73 @@
                         OnContent="Yes" />
                 </wct:SettingsCard>
 
+                <wct:SettingsCard
+                    Margin="0,5,0,0"
+                    Description="Enable periodic automatic backups of your settings and items."
+                    Header="Automatic backups">
+                    <wct:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8B8;" />
+                    </wct:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <ToggleSwitch x:Name="AutoBackupToggleSwitch" OffContent="Off" OnContent="On" />
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">Interval (hours):</TextBlock>
+                            <NumberBox x:Name="AutoBackupIntervalNumberBox" Width="80" Margin="6,0,0,0" Minimum="1" Maximum="168" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <ComboBox
+                                x:Name="BackupFilesComboBox"
+                                Width="320"
+                                PlaceholderText="Select backup to restore"
+                                HorizontalAlignment="Left" />
+                            <Button
+                                x:Name="RefreshBackupFilesButton"
+                                Content="Refresh"
+                                Margin="10,0,0,0"
+                                Click="RefreshBackupFilesButton_Click" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button
+                                x:Name="CreateBackupButton"
+                                Content="Create backup"
+                                Width="150"
+                                Click="CreateBackupButton_Click" />
+                            <Button
+                                x:Name="RestoreBackupButton"
+                                Content="Restore backup"
+                                Margin="10,0,0,0"
+                                Width="150"
+                                Click="RestoreBackupButton_Click" />
+                        </StackPanel>
+                        <TextBlock
+                            x:Name="BackupStatusTextBlock"
+                            Margin="0,10,0,0"
+                            Foreground="Gray"
+                            FontSize="12"
+                            Text="" />
+                    </StackPanel>
+                </wct:SettingsCard>
+
+                <wct:SettingsCard
+                    Margin="0,5,0,0"
+                    Description="Choose whether closing the window sends LauncherX to the system tray or exits."
+                    Header="Close behaviour">
+                    <wct:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8BB;" />
+                    </wct:SettingsCard.HeaderIcon>
+                    <ToggleSwitch x:Name="CloseToSystemTrayToggleSwitch" OffContent="Close app" OnContent="Hide to tray" />
+                </wct:SettingsCard>
+
+                <wct:SettingsCard
+                    Margin="0,5,0,0"
+                    Description="When adding files, use a friendly formatted name instead of the raw path."
+                    Header="Format file display text">
+                    <wct:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE8A5;" />
+                    </wct:SettingsCard.HeaderIcon>
+                    <ToggleSwitch x:Name="FormatFileDisplayTextToggleSwitch" OffContent="Raw path" OnContent="Formatted" />
+                </wct:SettingsCard>
+
                 <!--#endregion-->
 
                 <!--#region Updates-->

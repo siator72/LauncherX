@@ -66,9 +66,15 @@ namespace LauncherXWinUI
                 return;
             }
 
-            // Try to just activate the window, if it fails, create a new instance
+            // Try to restore the existing window from the tray
             try
             {
+                if (MainWindow.WindowState == WindowState.Minimized)
+                {
+                    MainWindow.WindowState = WindowState.Normal;
+                }
+
+                MainWindow.Show();
                 MainWindow.Activate();
             }
             catch
@@ -134,8 +140,38 @@ namespace LauncherXWinUI
         /// </summary>
         public static void ExitApplication()
         {
-            AppTrayIcon.Dispose();
-            ActivationHotKeyHook.Dispose();
+            try
+            {
+                if (AppTrayIcon != null)
+                {
+                    AppTrayIcon.IsVisible = false;
+                    AppTrayIcon.Dispose();
+                    AppTrayIcon = null;
+                }
+            }
+            catch { }
+
+            try
+            {
+                if (ActivationHotKeyHook != null)
+                {
+                    ActivationHotKeyHook.Dispose();
+                    ActivationHotKeyHook = null;
+                }
+            }
+            catch { }
+
+            if (MainWindow != null)
+            {
+                try
+                {
+                    MainWindow.AllowClose = true;
+                    MainWindow.Close();
+                }
+                catch { }
+                MainWindow = null;
+            }
+
             Application.Current.Exit();
         }
 

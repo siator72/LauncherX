@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Windowing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,6 +32,10 @@ namespace LauncherXWinUI
         /// </summary>
         public MultiFileSystemWatcher multiFileSystemWatcher = new MultiFileSystemWatcher();
 
+        private System.Timers.Timer autoBackupTimer;
+        private List<(string DisplayText, object Item)> SearchIndex = new List<(string DisplayText, object Item)>();
+        public bool AllowClose = false;
+
         public MainWindow()
         {
             this.InitializeComponent();
@@ -51,6 +56,24 @@ namespace LauncherXWinUI
 
             // Used in-tandem with the code in App.xaml.cs, for WinUIEx to save window position: https://github.com/dotMorten/WinUIEx/issues/61
             this.PersistenceId = "LauncherX-250f2258-1995-4edb-9db7-329a61a90a07";
+
+            // Intercept title bar/window close requests so we can optionally hide to tray
+            this.AppWindow.CloseRequested += AppWindow_CloseRequested;
+        }
+
+        private void AppWindow_CloseRequested(Microsoft.UI.Windowing.AppWindow sender, Microsoft.UI.Windowing.AppWindowCloseRequestedEventArgs args)
+        {
+            try
+            {
+                if (UserSettingsClass.CloseToSystemTray && !AllowClose)
+                {
+                    // Cancel the close and hide the window to the tray instead
+                    args.Handled = true;
+                    this.Hide();
+                }
+                // otherwise allow the window to close normally
+            }
+            catch { }
         }
 
         // Helper methods
@@ -230,6 +253,32 @@ namespace LauncherXWinUI
         /// <returns>The GridViewTile created</returns>
         private GridViewTile AddGridViewTile(string executingPath, string executingArguments, string displayText, BitmapImage imageSource)
         {
+            // Prevent adding duplicate shortcuts (by executing path)
+            try
+            {
+                foreach (var item in ItemsGridView.Items)
+                {
+                    if (item is GridViewTile existingTile)
+                    {
+                        if (!string.IsNullOrWhiteSpace(existingTile.ExecutingPath) && !string.IsNullOrWhiteSpace(executingPath) && existingTile.ExecutingPath.Equals(executingPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return existingTile; // duplicate found, return existing
+                        }
+                    }
+                    else if (item is GridViewTileGroup existingGroup)
+                    {
+                        foreach (var tile in existingGroup.Items)
+                        {
+                            if (!string.IsNullOrWhiteSpace(tile.ExecutingPath) && !string.IsNullOrWhiteSpace(executingPath) && tile.ExecutingPath.Equals(executingPath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                return tile; // duplicate found in group, return existing
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
             // Create new GridViewTile for each item
             GridViewTile gridViewTile = new GridViewTile();
             gridViewTile.ExecutingPath = executingPath;
@@ -376,6 +425,16 @@ namespace LauncherXWinUI
                 DeserialiseListToGridViewItems(controls);
             }
 
+            // Subscribe to changes in the main ItemsGridView so we can update counts
+            try
+            {
+                ItemsGridView.Items.VectorChanged += ItemsGridViewItems_VectorChanged;
+            }
+            catch { }
+
+            // Update counts initially
+            UpdateStatusCounts();
+
             // Monitor the linked folders to check for changes
             List<GridViewTile> LinkedFolderGridViewTiles = UserSettingsClass.FindAllLinkedFolderGridViewTiles(SerialiseGridViewItemsToList());
             List<string> LinkedFolderPaths = UserSettingsClass.FindLinkedFolderPaths(LinkedFolderGridViewTiles);
@@ -408,6 +467,32 @@ namespace LauncherXWinUI
                 UpdateInfoBar.IsOpen = true;
             }
 
+            // Setup automatic backups if enabled
+            try
+            {
+                if (autoBackupTimer != null)
+                {
+                    autoBackupTimer.Stop();
+                    autoBackupTimer.Dispose();
+                    autoBackupTimer = null;
+                }
+
+                if (UserSettingsClass.AutoBackupEnabled)
+                {
+                    autoBackupTimer = new System.Timers.Timer(TimeSpan.FromHours(Math.Max(1, UserSettingsClass.AutoBackupIntervalHours)).TotalMilliseconds);
+                    autoBackupTimer.AutoReset = true;
+                    autoBackupTimer.Elapsed += (s, ev) => {
+                        try
+                        {
+                            UserSettingsClass.CreateBackup();
+                        }
+                        catch { }
+                    };
+                    autoBackupTimer.Start();
+                }
+            }
+            catch { }
+
         }
 
         private async void MultiFileSystemWatcher_WatchedChanged(object sender, EventArgs e)
@@ -438,6 +523,34 @@ namespace LauncherXWinUI
             {
                 EmptyNotice.Visibility = Visibility.Visible;
             }
+
+            // Update status counts
+            UpdateStatusCounts();
+        }
+
+        private void UpdateStatusCounts()
+        {
+            try
+            {
+                int groupCount = 0;
+                int linkCount = 0;
+
+                foreach (var item in ItemsGridView.Items)
+                {
+                    if (item is GridViewTileGroup group)
+                    {
+                        groupCount++;
+                        linkCount += group.Items.Count;
+                    }
+                    else if (item is GridViewTile)
+                    {
+                        linkCount++;
+                    }
+                }
+
+                StatusCountsTextBlock.Text = $"Groups: {groupCount}  Links: {linkCount}";
+            }
+            catch { }
         }
 
         private async void AddFileBtn_Click(object sender, RoutedEventArgs e)
@@ -464,6 +577,9 @@ namespace LauncherXWinUI
 
                 // Save items
                 UserSettingsClass.SaveLauncherXItems(ItemsGridView.Items);
+
+                // Update status counts
+                UpdateStatusCounts();
 
                 // Hide LoadingDialog
                 await Task.Delay(20);
@@ -523,6 +639,9 @@ namespace LauncherXWinUI
             // Save items
             UserSettingsClass.SaveLauncherXItems(ItemsGridView.Items);
 
+            // Update status counts
+            UpdateStatusCounts();
+
             // Hide LoadingDialog
             await Task.Delay(20);
             LoadingDialog.Visibility = Visibility.Collapsed;
@@ -552,6 +671,9 @@ namespace LauncherXWinUI
 
             // Save items
             UserSettingsClass.SaveLauncherXItems(ItemsGridView.Items);
+
+            // Update status counts
+            UpdateStatusCounts();
 
             // Hide LoadingDialog
             await Task.Delay(20);
@@ -784,22 +906,56 @@ namespace LauncherXWinUI
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            // Only get results when it was a user typing, 
-            // otherwise assume the value got filled in by TextMemberPath 
-            // or the handler for SuggestionChosen.
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                // Set the ItemsSource to be your filtered dataset
-                SearchBoxDropdownItems = new List<string>();
-                foreach (GridViewTile gridViewTile in AllLauncherXItems)
+                return;
+            }
+
+            string query = sender.Text?.Trim() ?? string.Empty;
+            if (query.Length == 0)
+            {
+                SearchBoxDropdownItems.Clear();
+                sender.ItemsSource = null;
+                return;
+            }
+
+            SearchBoxDropdownItems = new List<string>();
+            foreach (GridViewTile gridViewTile in AllLauncherXItems)
+            {
+                if (!string.IsNullOrWhiteSpace(gridViewTile.DisplayText) && gridViewTile.DisplayText.Contains(query, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (gridViewTile.DisplayText.ToLower().Contains(sender.Text.ToLower()))
+                    SearchBoxDropdownItems.Add(gridViewTile.DisplayText);
+                    continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(gridViewTile.ExecutingPath) && gridViewTile.ExecutingPath.Contains(query, StringComparison.OrdinalIgnoreCase))
+                {
+                    SearchBoxDropdownItems.Add(gridViewTile.DisplayText);
+                    continue;
+                }
+
+                if (!string.IsNullOrWhiteSpace(gridViewTile.ExecutingArguments) && gridViewTile.ExecutingArguments.Contains(query, StringComparison.OrdinalIgnoreCase))
+                {
+                    SearchBoxDropdownItems.Add(gridViewTile.DisplayText);
+                    continue;
+                }
+            }
+
+            foreach (var item in ItemsGridView.Items)
+            {
+                if (item is Controls.GridViewItems.GridViewTileGroup group)
+                {
+                    if (!string.IsNullOrWhiteSpace(group.DisplayText) && group.DisplayText.Contains(query, StringComparison.OrdinalIgnoreCase))
                     {
-                        SearchBoxDropdownItems.Add(gridViewTile.DisplayText);
+                        if (!SearchBoxDropdownItems.Contains(group.DisplayText, StringComparer.OrdinalIgnoreCase))
+                        {
+                            SearchBoxDropdownItems.Add(group.DisplayText);
+                        }
                     }
                 }
-                sender.ItemsSource = SearchBoxDropdownItems;
             }
+
+            sender.ItemsSource = SearchBoxDropdownItems.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
@@ -809,31 +965,55 @@ namespace LauncherXWinUI
 
         private async void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            // If there's nothing in the dropdown of the SearchBox, don't do anything
-            if (SearchBoxDropdownItems.Count <= 0)
+            if (string.IsNullOrWhiteSpace(sender.Text))
             {
                 return;
             }
 
-            string chosenSuggestion = "";
-            if (args.ChosenSuggestion != null)
+            string chosenSuggestion = args.ChosenSuggestion?.ToString() ?? sender.Text.Trim();
+            if (string.IsNullOrWhiteSpace(chosenSuggestion))
             {
-                // User selected an item from the suggestion list, take an action on it here.
-                chosenSuggestion = args.ChosenSuggestion.ToString();
-            }
-            else
-            {
-                chosenSuggestion = SearchBoxDropdownItems[0];
+                return;
             }
 
             sender.Text = chosenSuggestion;
 
-            // Find the corresponding GridViewTile, and start its associated process
+            bool matchFound = false;
+            string normalizedChosenSuggestion = chosenSuggestion.Trim();
+
             foreach (GridViewTile gridViewTile in AllLauncherXItems)
             {
-                if (gridViewTile.DisplayText.ToLower() == chosenSuggestion.ToLower())
+                if (string.Equals(gridViewTile.DisplayText, normalizedChosenSuggestion, StringComparison.OrdinalIgnoreCase)
+                    || (!string.IsNullOrWhiteSpace(gridViewTile.ExecutingPath) && string.Equals(gridViewTile.ExecutingPath, normalizedChosenSuggestion, StringComparison.OrdinalIgnoreCase))
+                    || (!string.IsNullOrWhiteSpace(gridViewTile.ExecutingArguments) && string.Equals(gridViewTile.ExecutingArguments, normalizedChosenSuggestion, StringComparison.OrdinalIgnoreCase)))
                 {
                     await gridViewTile.StartAssociatedProcess();
+                    matchFound = true;
+                }
+            }
+
+            foreach (var item in ItemsGridView.Items)
+            {
+                if (item is GridViewTileGroup group && !string.IsNullOrWhiteSpace(group.DisplayText) && string.Equals(group.DisplayText, normalizedChosenSuggestion, StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (GridViewTile tile in group.Items)
+                    {
+                        await tile.StartAssociatedProcess();
+                        matchFound = true;
+                    }
+                }
+            }
+
+            if (!matchFound && SearchBoxDropdownItems.Count > 0)
+            {
+                string fallbackSuggestion = SearchBoxDropdownItems[0];
+                foreach (GridViewTile gridViewTile in AllLauncherXItems)
+                {
+                    if (string.Equals(gridViewTile.DisplayText, fallbackSuggestion, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await gridViewTile.StartAssociatedProcess();
+                        break;
+                    }
                 }
             }
 
@@ -1050,6 +1230,17 @@ namespace LauncherXWinUI
         {
             multiFileSystemWatcher.Dispose();
             UserSettingsClass.SaveLauncherXItems(ItemsGridView.Items);
+            try
+            {
+                if (autoBackupTimer != null)
+                {
+                    autoBackupTimer.Stop();
+                    autoBackupTimer.Dispose();
+                    autoBackupTimer = null;
+                }
+            }
+            catch { }
+            App.MainWindow = null;
         }
     }
 }

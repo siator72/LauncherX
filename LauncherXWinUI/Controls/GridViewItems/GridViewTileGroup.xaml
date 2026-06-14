@@ -63,6 +63,7 @@
 
             <ContentDialog
                 x:Name="GroupDialog"
+                IsLightDismissEnabled="True"
                 CloseButtonText="Close"
                 DefaultButton="Close">
                 <ContentDialog.Resources>

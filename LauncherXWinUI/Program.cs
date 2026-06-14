@@ -51,7 +51,13 @@ namespace LauncherXWinUI
                 // An existing running instance of LauncherX does not exist, continue the activation
                 keyInstance.Activated += (object sender, AppActivationArguments args) =>
                 {
-                    ExtendedActivationKind kind = args.Kind;
+                    if (Application.Current is App app)
+                    {
+                        app.DispatcherQueue.TryEnqueue(() =>
+                        {
+                            app.GetMainWindow();
+                        });
+                    }
                 };
             }
             else

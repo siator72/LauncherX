@@ -342,6 +342,15 @@
                         </MenuFlyout>
                     </FlyoutBase.AttachedFlyout>
                 </GridView>
+
+                <TextBlock
+                    x:Name="StatusCountsTextBlock"
+                    Grid.Row="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,24,8"
+                    Opacity="0.7"
+                    Text="" />
             </Grid>
         </Grid>
 

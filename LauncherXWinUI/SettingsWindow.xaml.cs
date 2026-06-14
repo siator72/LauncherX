@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -49,6 +50,12 @@ namespace LauncherXWinUI
             KeyComboControl.KeyCombo = UserSettingsClass.ActivationShortcut;
             RunOnStartupToggleSwitch.IsOn = UserSettingsClass.RunOnStartup;
             MinimiseOnItemLaunchToggleSwitch.IsOn = UserSettingsClass.MinimiseOnItemLaunch;
+            AutoBackupToggleSwitch.IsOn = UserSettingsClass.AutoBackupEnabled;
+            AutoBackupIntervalNumberBox.Value = UserSettingsClass.AutoBackupIntervalHours;
+            CloseToSystemTrayToggleSwitch.IsOn = UserSettingsClass.CloseToSystemTray;
+            FormatFileDisplayTextToggleSwitch.IsOn = UserSettingsClass.FormatFileDisplayText;
+
+            PopulateBackupFiles();
     
             // Create event handlers for the textbox and slider to update settings when their value is changed
             // We only create the event handlers here to prevent them from firing when the window loads
@@ -62,6 +69,10 @@ namespace LauncherXWinUI
             KeyComboControl.OnNewKeyboardShortcutRegistered += KeyComboControl_OnNewKeyboardShortcutRegistered;
             RunOnStartupToggleSwitch.Toggled += RunOnStartupToggleSwitch_Toggled;
             MinimiseOnItemLaunchToggleSwitch.Toggled += MinimiseOnItemLaunchToggleSwitch_Toggled;
+            AutoBackupToggleSwitch.Toggled += AutoBackupToggleSwitch_Toggled;
+            AutoBackupIntervalNumberBox.ValueChanged += AutoBackupIntervalNumberBox_ValueChanged;
+            CloseToSystemTrayToggleSwitch.Toggled += CloseToSystemTrayToggleSwitch_Toggled;
+            FormatFileDisplayTextToggleSwitch.Toggled += FormatFileDisplayTextToggleSwitch_Toggled;
 
             // Make sure to unsubscribe from the event handlers after
             ScaleSlider.Unloaded += (s, e) => ScaleSlider.ValueChanged -= ScaleSlider_ValueChanged;
@@ -72,6 +83,13 @@ namespace LauncherXWinUI
             KeyComboControl.Unloaded += (s, e) => KeyComboControl.OnNewKeyboardShortcutRegistered -= KeyComboControl_OnNewKeyboardShortcutRegistered;
             RunOnStartupToggleSwitch.Unloaded += (s, e) => RunOnStartupToggleSwitch.Toggled -= RunOnStartupToggleSwitch_Toggled;
             MinimiseOnItemLaunchToggleSwitch.Unloaded += (s, e) => MinimiseOnItemLaunchToggleSwitch.Toggled -= MinimiseOnItemLaunchToggleSwitch_Toggled;
+            AutoBackupToggleSwitch.Unloaded += (s, e) => AutoBackupToggleSwitch.Toggled -= AutoBackupToggleSwitch_Toggled;
+            AutoBackupIntervalNumberBox.Unloaded += (s, e) => AutoBackupIntervalNumberBox.ValueChanged -= AutoBackupIntervalNumberBox_ValueChanged;
+            CloseToSystemTrayToggleSwitch.Unloaded += (s, e) => CloseToSystemTrayToggleSwitch.Toggled -= CloseToSystemTrayToggleSwitch_Toggled;
+            FormatFileDisplayTextToggleSwitch.Unloaded += (s, e) => FormatFileDisplayTextToggleSwitch.Toggled -= FormatFileDisplayTextToggleSwitch_Toggled;
+            RefreshBackupFilesButton.Unloaded += (s, e) => RefreshBackupFilesButton.Click -= RefreshBackupFilesButton_Click;
+            CreateBackupButton.Unloaded += (s, e) => CreateBackupButton.Click -= CreateBackupButton_Click;
+            RestoreBackupButton.Unloaded += (s, e) => RestoreBackupButton.Click -= RestoreBackupButton_Click;
         }
 
         private void ScaleSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -129,6 +147,139 @@ namespace LauncherXWinUI
             UserSettingsClass.WriteSettingsFile();
         }
 
+        private void AutoBackupToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            UserSettingsClass.AutoBackupEnabled = AutoBackupToggleSwitch.IsOn;
+            UserSettingsClass.WriteSettingsFile();
+        }
+
+        private void AutoBackupIntervalNumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+        {
+            try
+            {
+                int val = (int)Math.Max(1, sender.Value ?? 1);
+                UserSettingsClass.AutoBackupIntervalHours = val;
+                UserSettingsClass.WriteSettingsFile();
+            }
+            catch { }
+        }
+
+        private void CloseToSystemTrayToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            UserSettingsClass.CloseToSystemTray = CloseToSystemTrayToggleSwitch.IsOn;
+            UserSettingsClass.WriteSettingsFile();
+        }
+
+        private void FormatFileDisplayTextToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            UserSettingsClass.FormatFileDisplayText = FormatFileDisplayTextToggleSwitch.IsOn;
+            UserSettingsClass.WriteSettingsFile();
+        }
+
+        private void PopulateBackupFiles()
+        {
+            try
+            {
+                var backupFiles = UserSettingsClass.GetBackupFiles();
+                var displayItems = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                foreach (var path in backupFiles)
+                {
+                    displayItems.Add(new System.Collections.Generic.KeyValuePair<string, string>(path, System.IO.Path.GetFileName(path)));
+                }
+
+                BackupFilesComboBox.DisplayMemberPath = "Value";
+                BackupFilesComboBox.SelectedValuePath = "Key";
+                BackupFilesComboBox.ItemsSource = displayItems;
+                BackupFilesComboBox.SelectedIndex = displayItems.Count > 0 ? 0 : -1;
+                BackupStatusTextBlock.Text = displayItems.Count > 0 ? $"{displayItems.Count} backup(s) available." : "No backups available.";
+                RestoreBackupButton.IsEnabled = displayItems.Count > 0;
+            }
+            catch
+            {
+                BackupFilesComboBox.ItemsSource = null;
+                BackupFilesComboBox.SelectedIndex = -1;
+                BackupStatusTextBlock.Text = "Unable to load backups.";
+                RestoreBackupButton.IsEnabled = false;
+            }
+        }
+
+        private async void RestoreBackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Restore the selected backup, falling back to the latest if none is selected
+            string backupPath = BackupFilesComboBox.SelectedValue as string;
+            if (string.IsNullOrWhiteSpace(backupPath))
+            {
+                var backups = UserSettingsClass.GetBackupFiles();
+                if (backups.Count > 0)
+                {
+                    backupPath = backups.First();
+                }
+            }
+
+            bool ok = false;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(backupPath))
+                {
+                    ok = UserSettingsClass.RestoreBackup(backupPath);
+                }
+            }
+            catch { ok = false; }
+
+            ContentDialog dlg = new ContentDialog();
+            dlg.XamlRoot = this.XamlRoot;
+            dlg.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            dlg.PrimaryButtonText = "OK";
+            dlg.DefaultButton = ContentDialogButton.Primary;
+            if (ok)
+            {
+                dlg.Title = "Restore complete";
+                dlg.Content = "Backup restored. Restart LauncherX for changes to take effect.";
+            }
+            else
+            {
+                dlg.Title = "Restore failed";
+                dlg.Content = "No backup was found or restore failed.";
+            }
+
+            await dlg.ShowAsync();
+        }
+
+        private async void CreateBackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool ok = false;
+            try
+            {
+                string backupPath = UserSettingsClass.CreateBackup();
+                ok = !string.IsNullOrWhiteSpace(backupPath) && File.Exists(backupPath);
+            }
+            catch { ok = false; }
+
+            PopulateBackupFiles();
+
+            ContentDialog dlg = new ContentDialog();
+            dlg.XamlRoot = this.XamlRoot;
+            dlg.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            dlg.PrimaryButtonText = "OK";
+            dlg.DefaultButton = ContentDialogButton.Primary;
+            if (ok)
+            {
+                dlg.Title = "Backup created";
+                dlg.Content = "A new backup has been created successfully.";
+            }
+            else
+            {
+                dlg.Title = "Backup failed";
+                dlg.Content = "Failed to create a backup. Please try again.";
+            }
+
+            await dlg.ShowAsync();
+        }
+
+        private void RefreshBackupFilesButton_Click(object sender, RoutedEventArgs e)
+        {
+            PopulateBackupFiles();
+        }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {

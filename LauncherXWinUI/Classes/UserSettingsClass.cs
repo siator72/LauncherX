@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -29,6 +30,10 @@ namespace LauncherXWinUI.Classes
         public string activationShortcut { get; set; } = "Ctrl L";
         public bool runOnStartup { get; set; } = false;
         public bool minimiseOnItemLaunch { get; set; } = false;
+        public bool autoBackupEnabled { get; set; } = false;
+        public int autoBackupIntervalHours { get; set; } = 24;
+        public bool closeToSystemTray { get; set; } = true;
+        public bool formatFileDisplayText { get; set; } = true;
     }
 
     /// <summary>
@@ -121,12 +126,37 @@ namespace LauncherXWinUI.Classes
         /// <summary>
         /// Directory where the items added to LauncherX are stored
         /// </summary>
-        public static string DataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\LauncherX\\Files";
+        public static string DataDir = Path.Combine(SettingsDir, "Files");
+
+        /// <summary>
+        /// Directory where automatic backup files are stored
+        /// </summary>
+        public static string BackupsDir = Path.Combine(SettingsDir, "Backups");
 
         /// <summary>
         /// Variable which stores items that could not be added to LauncherX as their file paths no longer exist
         /// </summary>
         public static List<string> ErrorPaths = new List<string>();
+
+        /// <summary>
+        /// Whether automatic backups are enabled
+        /// </summary>
+        public static bool AutoBackupEnabled = false;
+
+        /// <summary>
+        /// Automatic backup interval in hours
+        /// </summary>
+        public static int AutoBackupIntervalHours = 24;
+
+        /// <summary>
+        /// Whether closing the main window sends LauncherX to the system tray
+        /// </summary>
+        public static bool CloseToSystemTray = true;
+
+        /// <summary>
+        /// Whether file display text should use a formatted label instead of the raw path
+        /// </summary>
+        public static bool FormatFileDisplayText = true;
 
 
         // HELPER METHODS
@@ -165,6 +195,163 @@ namespace LauncherXWinUI.Classes
         {
             Directory.CreateDirectory(SettingsDir);
             Directory.CreateDirectory(DataDir);
+            Directory.CreateDirectory(BackupsDir);
+        }
+
+        /// <summary>
+        /// Returns the list of backup files found in the backups directory
+        /// </summary>
+        /// <returns>List of backup file paths</returns>
+        public static List<string> GetBackupFiles()
+        {
+            if (!Directory.Exists(BackupsDir))
+            {
+                return new List<string>();
+            }
+
+            return Directory.GetFiles(BackupsDir, "*.zip")
+                .OrderByDescending(x => x)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Creates a timestamped backup archive of the current user settings and item data.
+        /// </summary>
+        /// <returns>The path of the created backup file.</returns>
+        public static string CreateBackup()
+        {
+            Directory.CreateDirectory(BackupsDir);
+
+            string tempBackupDir = Path.Combine(SettingsDir, "TempBackup");
+            if (Directory.Exists(tempBackupDir))
+            {
+                Directory.Delete(tempBackupDir, true);
+            }
+            Directory.CreateDirectory(tempBackupDir);
+
+            try
+            {
+                string settingsFilePath = Path.Combine(SettingsDir, "userSettings.json");
+                if (File.Exists(settingsFilePath))
+                {
+                    File.Copy(settingsFilePath, Path.Combine(tempBackupDir, "userSettings.json"), true);
+                }
+
+                string windowPlacementPath = Path.Combine(SettingsDir, "windowPlace.json");
+                if (File.Exists(windowPlacementPath))
+                {
+                    File.Copy(windowPlacementPath, Path.Combine(tempBackupDir, "windowPlace.json"), true);
+                }
+
+                if (Directory.Exists(DataDir))
+                {
+                    string tempDataDir = Path.Combine(tempBackupDir, "Files");
+                    CopyDirectory(DataDir, tempDataDir);
+                }
+
+                string backupFileName = DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".zip";
+                string backupFilePath = Path.Combine(BackupsDir, backupFileName);
+                ZipFile.CreateFromDirectory(tempBackupDir, backupFilePath, CompressionLevel.Optimal, false);
+                return backupFilePath;
+            }
+            finally
+            {
+                if (Directory.Exists(tempBackupDir))
+                {
+                    try
+                    {
+                        Directory.Delete(tempBackupDir, true);
+                    }
+                    catch { }
+                }
+            }
+        }
++
++        /// <summary>
++        /// Restore the latest backup file found in BackupsDir.
++        /// </summary>
++        /// <returns>True if restore succeeded, false otherwise.</returns>
++        public static bool RestoreLatestBackup()
++        {
++            try
++            {
++                var backups = GetBackupFiles();
++                if (backups.Count == 0) return false;
++                return RestoreBackup(backups.First());
++            }
++            catch { return false; }
++        }
++
++        /// <summary>
++        /// Restore settings and data from a backup zip file.
++        /// </summary>
++        /// <param name="backupZipPath">Path to the backup zip</param>
++        /// <returns>True if restored successfully</returns>
++        public static bool RestoreBackup(string backupZipPath)
++        {
++            if (string.IsNullOrWhiteSpace(backupZipPath) || !File.Exists(backupZipPath)) return false;
++
++            string tempExtractDir = Path.Combine(SettingsDir, "TempBackupRestore");
++            try
++            {
++                if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
++                Directory.CreateDirectory(tempExtractDir);
++                ZipFile.ExtractToDirectory(backupZipPath, tempExtractDir);
++
++                // Restore userSettings.json
++                string extractedSettings = Path.Combine(tempExtractDir, "userSettings.json");
++                if (File.Exists(extractedSettings))
++                {
++                    File.Copy(extractedSettings, Path.Combine(SettingsDir, "userSettings.json"), true);
++                }
++
++                // Restore windowPlace.json
++                string extractedWindowPlace = Path.Combine(tempExtractDir, "windowPlace.json");
++                if (File.Exists(extractedWindowPlace))
++                {
++                    File.Copy(extractedWindowPlace, Path.Combine(SettingsDir, "windowPlace.json"), true);
++                }
++
++                // Restore Files directory
++                string extractedFilesDir = Path.Combine(tempExtractDir, "Files");
++                if (Directory.Exists(extractedFilesDir))
++                {
++                    // Remove existing data dir and copy extracted files
++                    if (Directory.Exists(DataDir))
++                    {
++                        Directory.Delete(DataDir, true);
++                    }
++                    CopyDirectory(extractedFilesDir, DataDir);
++                }
++
++                return true;
++            }
++            catch
++            {
++                return false;
++            }
++            finally
++            {
++                if (Directory.Exists(tempExtractDir))
++                {
++                    try { Directory.Delete(tempExtractDir, true); } catch { }
++                }
++            }
++        }
+*** End Patch
+        private static void CopyDirectory(string sourceDir, string destinationDir)
+        {
+            foreach (string directory in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(directory.Replace(sourceDir, destinationDir));
+            }
+
+            foreach (string file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                string destinationFile = file.Replace(sourceDir, destinationDir);
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
+                File.Copy(file, destinationFile, true);
+            }
         }
 
         /// <summary>
@@ -309,7 +496,11 @@ namespace LauncherXWinUI.Classes
                 gridPosition = GridPosition,
                 activationShortcut = ActivationShortcut,
                 runOnStartup = RunOnStartup,
-                minimiseOnItemLaunch = MinimiseOnItemLaunch
+                minimiseOnItemLaunch = MinimiseOnItemLaunch,
+                autoBackupEnabled = AutoBackupEnabled,
+                autoBackupIntervalHours = AutoBackupIntervalHours,
+                closeToSystemTray = CloseToSystemTray,
+                formatFileDisplayText = FormatFileDisplayText
             };
 
             string settingsFilePath = Path.Combine(SettingsDir, "userSettings.json");
@@ -338,6 +529,10 @@ namespace LauncherXWinUI.Classes
                 ActivationShortcut = userSettingsJson.activationShortcut;
                 RunOnStartup = userSettingsJson.runOnStartup;
                 MinimiseOnItemLaunch = userSettingsJson.minimiseOnItemLaunch;
+                AutoBackupEnabled = userSettingsJson.autoBackupEnabled;
+                AutoBackupIntervalHours = userSettingsJson.autoBackupIntervalHours;
+                CloseToSystemTray = userSettingsJson.closeToSystemTray;
+                FormatFileDisplayText = userSettingsJson.formatFileDisplayText;
             }
         }
 
