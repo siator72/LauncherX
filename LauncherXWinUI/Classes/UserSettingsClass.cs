@@ -450,33 +450,46 @@ namespace LauncherXWinUI.Classes
             string oldHeaderText = null;
             string oldScale = null;
 
-            // Parse the user.config file as an xml file
-            XmlDocument settingsXml = new XmlDocument();
-            settingsXml.Load(newestOldSettingsFile);
-            // Get all settings tags
-            var settingsTags = settingsXml.GetElementsByTagName("setting");
-            foreach (XmlNode settingsTag in settingsTags)
+            // Check if newestOldSettingsFile is not null before attempting to load
+            if (newestOldSettingsFile == null)
             {
-                string oldSettingVariable = settingsTag.Attributes["name"].Value;
-
-                if (oldSettingVariable == "scale")
-                {
-                    oldScale = settingsTag.FirstChild.InnerText;
-                }
-                else if (oldSettingVariable == "headerText")
-                {
-                    oldHeaderText = settingsTag.FirstChild.InnerText;
-                }
+                return;
             }
 
-            // Assign the old settings variables just retrieved to the new variables in this class
-            if (oldHeaderText != null)
+            try
             {
-                HeaderText = oldHeaderText;
+                // Parse the user.config file as an xml file
+                XmlDocument settingsXml = new XmlDocument();
+                settingsXml.Load(newestOldSettingsFile);
+                // Get all settings tags
+                var settingsTags = settingsXml.GetElementsByTagName("setting");
+                foreach (XmlNode settingsTag in settingsTags)
+                {
+                    string oldSettingVariable = settingsTag.Attributes["name"].Value;
+
+                    if (oldSettingVariable == "scale")
+                    {
+                        oldScale = settingsTag.FirstChild.InnerText;
+                    }
+                    else if (oldSettingVariable == "headerText")
+                    {
+                        oldHeaderText = settingsTag.FirstChild.InnerText;
+                    }
+                }
+
+                // Assign the old settings variables just retrieved to the new variables in this class
+                if (oldHeaderText != null)
+                {
+                    HeaderText = oldHeaderText;
+                }
+                if (oldScale != null)
+                {
+                    GridScale = Convert.ToDouble(oldScale);
+                }
             }
-            if (oldScale != null)
+            catch
             {
-                GridScale = Convert.ToDouble(oldScale);
+                // Failed to upgrade old settings, continue with defaults
             }
 
         }
@@ -517,22 +530,35 @@ namespace LauncherXWinUI.Classes
 
             if (File.Exists(settingsFilePath))
             {
-                string jsonString = File.ReadAllText(settingsFilePath);
-                UserSettingsJson userSettingsJson = JsonSerializer.Deserialize<UserSettingsJson>(jsonString, SourceGenerationContext.Default.UserSettingsJson);
+                try
+                {
+                    string jsonString = File.ReadAllText(settingsFilePath);
+                    UserSettingsJson userSettingsJson = JsonSerializer.Deserialize<UserSettingsJson>(jsonString, SourceGenerationContext.Default.UserSettingsJson);
 
-                // Assign variables
-                HeaderText = userSettingsJson.headerText;
-                GridScale = userSettingsJson.gridScale;
-                UseFullscreen = userSettingsJson.useFullscreen;
-                UseMinimalistMode = userSettingsJson.useMinimalistMode;
-                GridPosition = userSettingsJson.gridPosition;
-                ActivationShortcut = userSettingsJson.activationShortcut;
-                RunOnStartup = userSettingsJson.runOnStartup;
-                MinimiseOnItemLaunch = userSettingsJson.minimiseOnItemLaunch;
-                AutoBackupEnabled = userSettingsJson.autoBackupEnabled;
-                AutoBackupIntervalHours = userSettingsJson.autoBackupIntervalHours;
-                CloseToSystemTray = userSettingsJson.closeToSystemTray;
-                FormatFileDisplayText = userSettingsJson.formatFileDisplayText;
+                    // Check if deserialization was successful
+                    if (userSettingsJson == null)
+                    {
+                        return;
+                    }
+
+                    // Assign variables
+                    HeaderText = userSettingsJson.headerText;
+                    GridScale = userSettingsJson.gridScale;
+                    UseFullscreen = userSettingsJson.useFullscreen;
+                    UseMinimalistMode = userSettingsJson.useMinimalistMode;
+                    GridPosition = userSettingsJson.gridPosition;
+                    ActivationShortcut = userSettingsJson.activationShortcut;
+                    RunOnStartup = userSettingsJson.runOnStartup;
+                    MinimiseOnItemLaunch = userSettingsJson.minimiseOnItemLaunch;
+                    AutoBackupEnabled = userSettingsJson.autoBackupEnabled;
+                    AutoBackupIntervalHours = userSettingsJson.autoBackupIntervalHours;
+                    CloseToSystemTray = userSettingsJson.closeToSystemTray;
+                    FormatFileDisplayText = userSettingsJson.formatFileDisplayText;
+                }
+                catch
+                {
+                    // Failed to read or parse settings, use defaults
+                }
             }
         }
 

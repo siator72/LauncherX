@@ -13,6 +13,7 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <AssemblyName>LauncherX</AssemblyName>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -103,16 +104,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Controls\AddFileDialog.xaml">
+    <Page Update="Controls\Dialogs\AddFileDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Controls\AddFileDialogListViewItem.xaml">
+    <Page Update="Controls\Dialogs\AddFileDialogListViewItem.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Controls\AddFolderDialogListViewItem.xaml">
+    <Page Update="Controls\Dialogs\AddFolderDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Controls\AddWebsiteDialog.xaml">
+    <Page Update="Controls\Dialogs\AddFolderDialogListViewItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Controls\Dialogs\AddWebsiteDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Controls\AboutSectionControl.xaml">
@@ -125,6 +129,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Controls\GridViewItems\EditItemWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Controls\GridViewItems\GridViewTileGroup.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Controls\KeyComboViewer.xaml">
@@ -172,18 +179,6 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <CustomAdditionalCompileInputs Remove="Controls\AddFolderDialog.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Remove="Controls\AddFolderDialog.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomAdditionalCompileInputs Remove="Controls\GridViewTileGroup.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Remove="Controls\GridViewTileGroup.xaml" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WinFormsClassLibrary\WinFormsClassLibrary.csproj" />
   </ItemGroup>

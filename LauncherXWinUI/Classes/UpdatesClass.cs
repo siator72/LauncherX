@@ -38,7 +38,7 @@ namespace LauncherXWinUI.Classes
 
             // Compare the latest release tag with the app version. If they are different, update is available
             GitHubClient client = new GitHubClient(new ProductHeaderValue("LauncherX"));
-            IReadOnlyList<Release> releases = await client.Repository.Release.GetAll("Apollo199999999", "LauncherX");
+            IReadOnlyList<Release> releases = await client.Repository.Release.GetAll("Mahantor", "LauncherX");
 
             if (releases.Count <= 0)
             {

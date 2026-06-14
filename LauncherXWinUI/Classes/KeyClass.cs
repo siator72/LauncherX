@@ -185,7 +185,15 @@ namespace LauncherXWinUI.Classes
                     return Keys.LWin;
 
                 default:
-                    return (Keys)Enum.Parse(typeof(Keys), key);
+                    try
+                    {
+                        return (Keys)Enum.Parse(typeof(Keys), key);
+                    }
+                    catch
+                    {
+                        // Return None if key cannot be parsed
+                        return Keys.None;
+                    }
             }
         }
 
@@ -260,9 +268,21 @@ namespace LauncherXWinUI.Classes
         {
             List<Keys> keysList = new List<Keys>();
 
+            if (string.IsNullOrWhiteSpace(KeysString))
+            {
+                return keysList;
+            }
+
             foreach (string key in KeysString.Trim().Split(' '))
             {
-                keysList.Add(CharToKeycode(key));
+                try
+                {
+                    keysList.Add(CharToKeycode(key));
+                }
+                catch
+                {
+                    // Ignore invalid keys
+                }
             }
 
             return keysList;
