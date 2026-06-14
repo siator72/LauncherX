@@ -83,12 +83,6 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.22": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
       "Microsoft.Web.WebView2/1.0.3179.45": {
         "type": "package",
         "build": {
@@ -616,12 +610,6 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.22": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
       "Microsoft.Web.WebView2/1.0.3179.45": {
         "type": "package",
         "native": {
@@ -1102,12 +1090,6 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.22": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
       "Microsoft.Web.WebView2/1.0.3179.45": {
         "type": "package",
         "native": {
@@ -1586,12 +1568,6 @@
           "lib/net8.0-windows10.0.19041/CommunityToolkit.WinUI.Triggers.dll": {
             "related": ".pdb;.pri;.xml"
           }
-        }
-      },
-      "Microsoft.NET.ILLink.Tasks/8.0.22": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
       "Microsoft.Web.WebView2/1.0.3179.45": {
@@ -2167,57 +2143,6 @@
         "lib/net9.0/CommunityToolkit.WinUI.Triggers.dll",
         "lib/net9.0/CommunityToolkit.WinUI.Triggers.pdb",
         "lib/net9.0/CommunityToolkit.WinUI.Triggers.xml"
-      ]
-    },
-    "Microsoft.NET.ILLink.Tasks/8.0.22": {
-      "sha512": "MhcMithKEiyyNkD2ZfbDZPmcOdi0GheGfg8saEIIEfD/fol3iHmcV8TsZkD4ZYz5gdUuoX4YtlVySUU7Sxl9SQ==",
-      "type": "package",
-      "path": "microsoft.net.illink.tasks/8.0.22",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "Sdk/Sdk.props",
-        "THIRD-PARTY-NOTICES.TXT",
-        "analyzers/dotnet/cs/ILLink.CodeFixProvider.dll",
-        "analyzers/dotnet/cs/ILLink.RoslynAnalyzer.dll",
-        "build/Microsoft.NET.ILLink.Analyzers.props",
-        "build/Microsoft.NET.ILLink.Tasks.props",
-        "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.8.0.22.nupkg.sha512",
-        "microsoft.net.illink.tasks.nuspec",
-        "tools/net472/ILLink.Tasks.dll",
-        "tools/net472/ILLink.Tasks.dll.config",
-        "tools/net472/Mono.Cecil.Mdb.dll",
-        "tools/net472/Mono.Cecil.Pdb.dll",
-        "tools/net472/Mono.Cecil.Rocks.dll",
-        "tools/net472/Mono.Cecil.dll",
-        "tools/net472/Sdk/Sdk.props",
-        "tools/net472/System.Buffers.dll",
-        "tools/net472/System.Collections.Immutable.dll",
-        "tools/net472/System.Memory.dll",
-        "tools/net472/System.Numerics.Vectors.dll",
-        "tools/net472/System.Reflection.Metadata.dll",
-        "tools/net472/System.Runtime.CompilerServices.Unsafe.dll",
-        "tools/net472/build/Microsoft.NET.ILLink.Analyzers.props",
-        "tools/net472/build/Microsoft.NET.ILLink.Tasks.props",
-        "tools/net472/build/Microsoft.NET.ILLink.targets",
-        "tools/net8.0/ILLink.Tasks.deps.json",
-        "tools/net8.0/ILLink.Tasks.dll",
-        "tools/net8.0/Mono.Cecil.Mdb.dll",
-        "tools/net8.0/Mono.Cecil.Pdb.dll",
-        "tools/net8.0/Mono.Cecil.Rocks.dll",
-        "tools/net8.0/Mono.Cecil.dll",
-        "tools/net8.0/Sdk/Sdk.props",
-        "tools/net8.0/build/Microsoft.NET.ILLink.Analyzers.props",
-        "tools/net8.0/build/Microsoft.NET.ILLink.Tasks.props",
-        "tools/net8.0/build/Microsoft.NET.ILLink.targets",
-        "tools/net8.0/illink.deps.json",
-        "tools/net8.0/illink.dll",
-        "tools/net8.0/illink.runtimeconfig.json",
-        "useSharedDesignerContext.txt"
       ]
     },
     "Microsoft.Web.WebView2/1.0.3179.45": {
@@ -4311,7 +4236,6 @@
     "net8.0-windows10.0.22621": [
       "CommunityToolkit.WinUI.Controls.SettingsControls >= 8.2.250402",
       "CommunityToolkit.WinUI.Extensions >= 8.2.250402",
-      "Microsoft.NET.ILLink.Tasks >= 8.0.22",
       "Microsoft.Windows.SDK.BuildTools >= 10.0.26100.7175",
       "Microsoft.WindowsAppSDK >= 1.8.251106002",
       "Octokit >= 14.0.0",
@@ -4321,40 +4245,32 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\fligh\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/home/codespace/.nuget/packages/": {}
   },
   "project": {
     "version": "2.2.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\fligh\\source\\repos\\LauncherX\\LauncherXWinUI\\LauncherXWinUI.csproj",
+      "projectUniqueName": "/workspaces/LauncherX/LauncherXWinUI/LauncherXWinUI.csproj",
       "projectName": "LauncherX",
-      "projectPath": "C:\\Users\\fligh\\source\\repos\\LauncherX\\LauncherXWinUI\\LauncherXWinUI.csproj",
-      "packagesPath": "C:\\Users\\fligh\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\fligh\\source\\repos\\LauncherX\\LauncherXWinUI\\obj\\",
+      "projectPath": "/workspaces/LauncherX/LauncherXWinUI/LauncherXWinUI.csproj",
+      "packagesPath": "/home/codespace/.nuget/packages/",
+      "outputPath": "/workspaces/LauncherX/LauncherXWinUI/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\fligh\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/codespace/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0-windows10.0.22621.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0-windows10.0.22621": {
           "targetAlias": "net8.0-windows10.0.22621.0",
           "projectReferences": {
-            "C:\\Users\\fligh\\source\\repos\\LauncherX\\WinFormsClassLibrary\\WinFormsClassLibrary.csproj": {
-              "projectPath": "C:\\Users\\fligh\\source\\repos\\LauncherX\\WinFormsClassLibrary\\WinFormsClassLibrary.csproj"
+            "/workspaces/LauncherX/WinFormsClassLibrary/WinFormsClassLibrary.csproj": {
+              "projectPath": "/workspaces/LauncherX/WinFormsClassLibrary/WinFormsClassLibrary.csproj"
             }
           }
         }
@@ -4369,7 +4285,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net8.0-windows10.0.22621": {
@@ -4382,12 +4298,6 @@
           "CommunityToolkit.WinUI.Extensions": {
             "target": "Package",
             "version": "[8.2.250402, )"
-          },
-          "Microsoft.NET.ILLink.Tasks": {
-            "suppressParent": "All",
-            "target": "Package",
-            "version": "[8.0.22, )",
-            "autoReferenced": true
           },
           "Microsoft.Windows.SDK.BuildTools": {
             "target": "Package",
@@ -4423,48 +4333,72 @@
         "warn": true,
         "downloadDependencies": [
           {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.25, 8.0.25]"
+          },
+          {
             "name": "Microsoft.AspNetCore.App.Runtime.win-arm64",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.AspNetCore.App.Runtime.win-x86",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
-            "name": "Microsoft.NETCore.App.Crossgen2.win-x64",
-            "version": "[8.0.22, 8.0.22]"
+            "name": "Microsoft.NETCore.App.Host.linux-x64",
+            "version": "[8.0.25, 8.0.25]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-arm64",
+            "version": "[8.0.25, 8.0.25]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.25, 8.0.25]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x86",
+            "version": "[8.0.25, 8.0.25]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-arm64",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-x64",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-x86",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.Windows.SDK.NET.Ref",
             "version": "[10.0.22621.57, 10.0.22621.57]"
           },
           {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.25, 8.0.25]"
+          },
+          {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86",
-            "version": "[8.0.22, 8.0.22]"
+            "version": "[8.0.25, 8.0.25]"
           }
         ],
         "frameworkReferences": {
@@ -4475,7 +4409,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.200/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {

@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "hTWZgdi2Zpc=",
+  "dgSpecHash": "pMrQF0w376o=",
   "success": true,
-  "projectFilePath": "C:\\Users\\fligh\\source\\repos\\LauncherX\\WinFormsClassLibrary\\WinFormsClassLibrary.csproj",
+  "projectFilePath": "/workspaces/LauncherX/WinFormsClassLibrary/WinFormsClassLibrary.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\fligh\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22621.57\\microsoft.windows.sdk.net.ref.10.0.22621.57.nupkg.sha512"
+    "/home/codespace/.nuget/packages/microsoft.netcore.app.ref/8.0.25/microsoft.netcore.app.ref.8.0.25.nupkg.sha512",
+    "/home/codespace/.nuget/packages/microsoft.windowsdesktop.app.ref/8.0.25/microsoft.windowsdesktop.app.ref.8.0.25.nupkg.sha512",
+    "/home/codespace/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.25/microsoft.aspnetcore.app.ref.8.0.25.nupkg.sha512",
+    "/home/codespace/.nuget/packages/microsoft.windows.sdk.net.ref/10.0.22621.57/microsoft.windows.sdk.net.ref.10.0.22621.57.nupkg.sha512"
   ],
   "logs": []
 }

@@ -14,7 +14,6 @@
     PrimaryButtonText="Add folder(s)"
     mc:Ignorable="d">
     <ContentDialog.Resources>
-        <Style BasedOn="{StaticResource DefaultContentDialogStyle}" TargetType="local:AddFolderDialog" />
         <!--  Change MaxWidth of ContentDialog  -->
         <x:Double x:Key="ContentDialogMaxWidth">800</x:Double>
     </ContentDialog.Resources>

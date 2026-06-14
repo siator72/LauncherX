@@ -11,9 +11,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("WinFormsClassLibrary")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17d25b72260f9ad89fb652e31439e0cc2f30d497")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+276bfb8882d974655bbdd0248ba81c341249c9ae")]
 [assembly: System.Reflection.AssemblyProductAttribute("WinFormsClassLibrary")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WinFormsClassLibrary")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

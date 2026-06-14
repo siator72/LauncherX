@@ -1,0 +1,12 @@
+/workspaces/LauncherX/WinFormsClassLibrary/bin/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.deps.json
+/workspaces/LauncherX/WinFormsClassLibrary/bin/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.dll
+/workspaces/LauncherX/WinFormsClassLibrary/bin/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.pdb
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.AssemblyInfoInputs.cache
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.AssemblyInfo.cs
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.csproj.CoreCompileInputs.cache
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.sourcelink.json
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.dll
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/refint/WinFormsClassLibrary.dll
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/WinFormsClassLibrary.pdb
+/workspaces/LauncherX/WinFormsClassLibrary/obj/x64/Release/net8.0-windows10.0.22621.0/ref/WinFormsClassLibrary.dll
